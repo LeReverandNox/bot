@@ -1,0 +1,19 @@
+version: '2'
+services:
+  bot:
+    build: ./
+    volumes:
+      # DEV PURPOSE ONLY
+      - $BOT_SRC:/src
+    environment:
+      - VIRTUAL_HOST=$BOT_HOST
+      - VIRTUAL_PORT=3000
+    ports:
+      - $BOT_PORT:3000
+  reverse-proxy:
+    image: jwilder/nginx-proxy
+    ports:
+      - $HTTP_PORT:80/tcp
+      - $HTTPS_PORT:443/tcp
+    volumes:
+      - $DOCKER_SOCK:/tmp/docker.sock:ro
