@@ -24,7 +24,43 @@ module.exports = (server) => {
             }
         },
         postWebhookAction: async (req, rep) => {
+            const payload = req.payload;
+            console.log("Voici la payload d'un post sur /webhook");
+            console.log(payload);
+            console.log("***");
 
+            try {
+                if (payload.object !== 'page') {
+                    throw new Error("Hit not coming from a page, skipping...");
+                }
+
+                const entries = payload.entry;
+                let entry;
+                for(entry of entries) {
+                    const pageID = entry.id;
+                    const timeOfEvent = entry.time;
+
+                    const events = entry.messaging;
+                    if (!events) {
+                        throw new Error("No event to process, skipping...");
+                    }
+
+                    let event;
+                    for (event of events) {
+                        if (event.message) {
+                            await services.bot.receivedMessage(event);
+                        } else if (event.postback) {
+                            await services.bot.receivedPostback(event);
+                        } else {
+                            console.log("Webhook received unknown event: ", event);
+                        }
+                    };
+                };
+            } catch (e) {
+                console.error(e);
+            }
+
+            return rep().code(200);
         }
     };
 
