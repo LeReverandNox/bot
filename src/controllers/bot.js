@@ -31,7 +31,7 @@ module.exports = (server) => {
 
             try {
                 if (payload.object !== 'page') {
-                    throw new Error("Hit not coming from a page, skipping...");
+                    throw "Hit not coming from a page, skipping...";
                 }
 
                 const entries = payload.entry;
@@ -42,7 +42,7 @@ module.exports = (server) => {
 
                     const events = entry.messaging;
                     if (!events) {
-                        throw new Error("No event to process, skipping...");
+                        throw "No event to process, skipping...";
                     }
 
                     let event;
