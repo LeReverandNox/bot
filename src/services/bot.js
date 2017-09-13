@@ -107,12 +107,14 @@ module.exports = (server) => {
                 {
                     "content_type": "text",
                     "title": "Un chien",
-                    "payload": "WANT_DOG"
+                    "payload": "WANT_DOG",
+                    "image_url": "https://d30y9cdsu7xlg0.cloudfront.net/png/14830-200.png"
                 },
                 {
                     "content_type": "text",
                     "title": "Un chat",
-                    "payload": "WANT_CAT"
+                    "payload": "WANT_CAT",
+                    "image_url": "http://dergibi.com/wp-content/uploads/2017/03/cat-with-long-tail-silhouette-277x300.png"
                 }
             ];
             const text = "D'accord, quel genre d'animal souhaitez-vous adopter ?";
