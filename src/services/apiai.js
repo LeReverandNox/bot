@@ -9,7 +9,7 @@ module.exports = (server) => {
     const config = server.app.config;
     const services = server.app.services;
 
-    const apiai = {
+    const apiaiService = {
         init: function () {
             this.clientAccessToken = config.apiAi.clientAccessToken;
             this.agent = ai(this.clientAccessToken);
@@ -43,5 +43,5 @@ module.exports = (server) => {
         }
     };
 
-    return apiai.init();
+    return apiaiService.init();
 };
