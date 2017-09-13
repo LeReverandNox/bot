@@ -8,5 +8,8 @@ module.exports = {
     },
     facebook: {
         baseURL: "https://graph.facebook.com/v2.6"
+    },
+    apiAi: {
+        clientAccessToken: process.env.APIAI_CLIENT_ACCESS_TOKEN
     }
 };
