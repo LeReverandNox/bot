@@ -25,12 +25,12 @@ module.exports = (server) => {
                 request.on('response', (response) => {
                     const result = response.result;
                     const metadata = result.metadata;
-                    const intentName = metadata.intentName
+                    const intentName = metadata.intentName;
 
                     if (intentName === "Adopter un animal") {
                         return resolve();
                     }
-                    return reject();
+                    return reject(`Wrong intent: ${intentName}`);
                 });
 
                 request.on('error', (err) => {
