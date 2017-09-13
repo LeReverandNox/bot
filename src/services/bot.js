@@ -9,6 +9,7 @@ module.exports = (server) => {
 
     const botService = {
         init: function () {
+            this.NB_WANTED_ANIMALS = 2;
             return this;
         },
         receivedEvent: async function (event) {
@@ -52,7 +53,6 @@ module.exports = (server) => {
                 }
             } catch (err) {
                 console.error(err);
-
                 throw new Error("Error during message processing");
             }
         },
@@ -60,6 +60,24 @@ module.exports = (server) => {
             console.log(`C'est un postback`);
             console.log(event);
             console.log("****");
+
+            const senderId = event.sender.id;
+            let payload = event.postback.payload;
+            const discussion = services.discussion.getDiscussion(senderId);
+            discussion.messages.push(event);
+
+            await services.facebookApi.sendTypingOn(discussion.recipientId);
+            try {
+                payload = JSON.parse(payload);
+                if (payload.action === "adopt") {
+                    await this.confirmAdoption(discussion, payload.name);
+                } else {
+                    await services.facebookApi.sendTextMessage(discussion.recipientId, "Je n'ai pas compris votre besoin.");
+                }
+            } catch (err) {
+                console.error(err);
+                throw new Error("Error during message processing");
+            }
         },
         receivedQuickReply: async function (event) {
             console.log(`C'est une quick_reply`);
@@ -73,11 +91,15 @@ module.exports = (server) => {
             discussion.messages.push(event);
 
             await services.facebookApi.sendTypingOn(discussion.recipientId);
-
-            if (payload === "WANT_DOG" || payload === "WANT_CAT") {
-                await this.proposeAnimals(discussion, payload);
-            } else {
-                await services.facebookApi.sendTextMessage(discussion.recipientId, "Je n'ai pas compris votre besoin.");
+            try {
+                if (payload === "WANT_DOG" || payload === "WANT_CAT") {
+                    await this.proposeAnimals(discussion, payload);
+                } else {
+                    await services.facebookApi.sendTextMessage(discussion.recipientId, "Je n'ai pas compris votre besoin.");
+                }
+            } catch (err) {
+                console.error(err);
+                throw new Error("Error during message processing");
             }
         },
         askAnimalType: async function (discussion) {
@@ -101,32 +123,36 @@ module.exports = (server) => {
             let animals;
             switch (type) {
                 case "WANT_DOG":
-                    animals = await services.animals.getDogs(2);
+                    animals = await services.animals.getDogs(this.NB_WANTED_ANIMALS);
                     break;
                 case "WANT_CAT":
-                    animals = await services.animals.getCats(2);
+                    animals = await services.animals.getCats(this.NB_WANTED_ANIMALS);
                     break;
                 default:
                     break;
             }
 
-            console.log("On va envoyer ces animaux");
-            console.log(animals);
+            const elements = animals.map((animal) => {
+                return {
+                    title: animal.name,
+                    subtitle: "Adoptez moi par pitié",
+                    image_url: animal.imageUrl,
+                    buttons: [
+                        {
+                            type: "postback",
+                            title: "Adopter",
+                            payload: `{"action": "adopt", "name" : "${animal.name}"}`
+                        }
+                    ]
 
-            const elements = [
-                {
-                    title: animals[0].name,
-                    subtitle: "Un animal qu'il est mignon !",
-                    image_url: animals[0].imageUrl
-                },
-                {
-                    title: animals[1].name,
-                    subtitle: "Un animal qu'il est mignon aussi !",
-                    image_url: animals[1].imageUrl
-                }
-            ];
+                };
+            });
 
             await services.facebookApi.sendGenericMessage(discussion.recipientId, elements);
+        },
+        confirmAdoption: async function (discussion, name) {
+            await services.facebookApi.sendTextMessage(discussion.recipientId, `Félicitations, vous avez adopté ${name}. Votre animal vous sera livré par Colissimo sous 72h. Merci de vérifier l'état du paquet lors de réception. Merci !`);
+
         }
     };
 
