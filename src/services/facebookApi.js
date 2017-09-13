@@ -106,9 +106,6 @@ module.exports = (server) => {
                 }
             };
 
-            console.log("On envoie ca à l'api");
-            console.log(messageData);
-            console.log("***");
             await this._postSendApi(messageData);
         }
     };
