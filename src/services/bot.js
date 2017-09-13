@@ -27,10 +27,13 @@ module.exports = (server) => {
                     discussion.recipientProfile = profile;
 
                     await services.facebookApi.sendTextMessage(senderId, `Bonjour ${discussion.recipientProfile.first_name} ! =P`);
-                    await services.facebookApi.sendTypingOn(senderId);
                 } else {
-                    await services.facebookApi.sendTextMessage(senderId, text);
-                    await services.facebookApi.sendTypingOn(senderId);
+                    try {
+                        await services.apiai.isAdoptingAnimal(text);
+                        await this.proposeAnimals(discussion);
+                    } catch (err) {
+                        await services.facebookApi.sendTextMessage(senderId, "Je n'ai pas compris votre besoin.");
+                    }
                 }
             } catch (err) {
                 console.error(err);
@@ -42,6 +45,9 @@ module.exports = (server) => {
             console.log(`C'est un postback`);
             console.log(event);
             console.log("****");
+        },
+        proposeAnimals: async function (discussion) {
+            await services.facebookApi.sendTextMessage(discussion.recipientId, "Okay, tu veux adopter un animal petit branleur");
         }
     };
 
