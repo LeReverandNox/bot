@@ -47,13 +47,7 @@ module.exports = (server) => {
 
                     let event;
                     for (event of events) {
-                        if (event.message) {
-                            await services.bot.receivedMessage(event);
-                        } else if (event.postback) {
-                            await services.bot.receivedPostback(event);
-                        } else {
-                            console.log("Webhook received unknown event: ", event);
-                        }
+                        await services.bot.receivedEvent(event);
                     };
                 };
             } catch (e) {
