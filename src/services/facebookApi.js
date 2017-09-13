@@ -25,7 +25,12 @@ module.exports = (server) => {
                 json: true
             };
 
-            return rp.post(options);
+            return rp.post(options)
+                .catch((err) => {
+                    console.error(err);
+
+                    throw new Error("The message couldn't be sent.");
+                });
         },
         sendTextMessage: async function (recipientId, messageText) {
             const messageData = {
@@ -37,13 +42,7 @@ module.exports = (server) => {
                 }
             };
 
-            try {
-                await this._postSendApi(messageData);
-            } catch (err) {
-                console.error(err);
-
-                throw new Error("The message couldn't be sent.");
-            }
+            await this._postSendApi(messageData);
         },
         sendTypingOn: async function (recipientId) {
             const messageData = {
@@ -53,13 +52,7 @@ module.exports = (server) => {
                 sender_action: "typing_on"
             };
 
-            try {
-                await this._postSendApi(messageData);
-            } catch (err) {
-                console.error(err);
-
-                throw new Error("The message couldn't be sent.");
-            }
+            await this._postSendApi(messageData);
         },
         sendTypingOff: async function (recipientId) {
             const messageData = {
@@ -69,13 +62,7 @@ module.exports = (server) => {
                 sender_action: "typing_off"
             };
 
-            try {
-                await this._postSendApi(messageData);
-            } catch (err) {
-                console.error(err);
-
-                throw new Error("The message couldn't be sent.");
-            }
+            await this._postSendApi(messageData);
         },
         getProfile: async function (personId) {
             const uri = `${this.baseURL}/${personId}`;
@@ -89,6 +76,40 @@ module.exports = (server) => {
             }
 
             return rp.get(options);
+        },
+        sendTextQuickReplies: async function (recipientId, replies, text) {
+            const messageData = {
+                recipient: {
+                    id: recipientId
+                },
+                message: {
+                    text: text,
+                    quick_replies: replies
+                }
+            };
+
+            await this._postSendApi(messageData);
+        },
+        sendGenericMessage: async function (recipientId, elements) {
+            const messageData = {
+                recipient: {
+                    id: recipientId
+                },
+                message: {
+                    attachment: {
+                        type: "template",
+                        payload: {
+                            template_type: "generic",
+                            elements: elements
+                        }
+                    }
+                }
+            };
+
+            console.log("On envoie ca à l'api");
+            console.log(messageData);
+            console.log("***");
+            await this._postSendApi(messageData);
         }
     };
 
