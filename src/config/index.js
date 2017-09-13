@@ -11,5 +11,11 @@ module.exports = {
     },
     apiAi: {
         clientAccessToken: process.env.APIAI_CLIENT_ACCESS_TOKEN
+    },
+    dog: {
+        apiUrl: "https://dog.ceo/api"
+    },
+    cat: {
+        apiUrl: "http://random.cat/meow"
     }
 };
