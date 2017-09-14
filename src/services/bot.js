@@ -38,10 +38,7 @@ module.exports = (server) => {
             await services.facebookApi.sendTypingOn(discussion.recipientId);
             try {
                 if (services.discussion.getNbMessages(discussion) === 1) {
-                    const profile = await services.facebookApi.getProfile(discussion.recipientId);
-                    discussion.recipientProfile = profile;
-
-                    await services.facebookApi.sendTextMessage(discussion.recipientId, `Bonjour ${discussion.recipientProfile.first_name} ! =P`);
+                    await this.beginDiscussion(discussion);
                 } else {
                     try {
                         await services.apiai.isAdoptingAnimal(text);
@@ -71,6 +68,8 @@ module.exports = (server) => {
                 payload = JSON.parse(payload);
                 if (payload.action === "adopt") {
                     await this.confirmAdoption(discussion, payload.name);
+                } else if (payload.action === "begin_discussion") {
+                    await this.beginDiscussion(discussion);
                 } else {
                     await services.facebookApi.sendTextMessage(discussion.recipientId, "Je n'ai pas compris votre besoin.");
                 }
@@ -155,6 +154,12 @@ module.exports = (server) => {
         confirmAdoption: async function (discussion, name) {
             await services.facebookApi.sendTextMessage(discussion.recipientId, `Félicitations, vous avez adopté ${name}. Votre animal vous sera livré par Colissimo sous 72h. Merci de vérifier l'état du paquet lors de réception. Merci !`);
 
+        },
+        beginDiscussion: async function (discussion) {
+            const profile = await services.facebookApi.getProfile(discussion.recipientId);
+            discussion.recipientProfile = profile;
+
+            await services.facebookApi.sendTextMessage(discussion.recipientId, `Bonjour ${discussion.recipientProfile.first_name} ! =P`);
         }
     };
 
